@@ -1,0 +1,44 @@
+{{/* Renders "In the News" entries as one line each:
+
+       Headline - May 2024
+
+     with the date in a lighter grey. Returns HTML for my/section-2col.html.
+
+     Source pages: content/news/*. Per entry:
+       title   headline (required)
+       date    (required)
+       links   [{type: site, url: ...}] — the article itself
+
+     `source:` is still read from front matter but no longer displayed; the
+     outlet is normally already part of the headline. */}}
+{{ $pages := .pages }}
+{{ $date_format := .date_format | default (site.Params.hugoblox.locale.date_format | default ":date_long") }}
+
+{{ $out := "" }}
+{{ with $pages }}
+  {{ $rows := "" }}
+  {{ range . }}
+    {{ $machine := time.Format "2006-01-02" .Date }}
+    {{ $human := time.Format $date_format .Date }}
+
+    {{/* The article URL: first `site` link, else any link, else the page. */}}
+    {{ $url := "" }}
+    {{ range (.Params.links | default slice) }}
+      {{ if and (not $url) (eq (.type | default "") "site") }}{{ $url = .url | default "" }}{{ end }}
+    {{ end }}
+    {{ if not $url }}
+      {{ range (.Params.links | default slice) }}
+        {{ if not $url }}{{ $url = .url | default "" }}{{ end }}
+      {{ end }}
+    {{ end }}
+    {{ $external := true }}
+    {{ if not $url }}{{ $url = .RelPermalink }}{{ $external = false }}{{ end }}
+
+    {{ $rows = printf `%s<li class="mn-item"><a class="mn-headline" href="%s"%s>%s</a><span class="mn-when"> - <time datetime="%s">%s</time></span></li>`
+        $rows $url
+        (cond $external ` target="_blank" rel="noopener"` "")
+        .Title $machine $human }}
+  {{ end }}
+  {{ $out = printf `<ul class="mn-list">%s</ul>` $rows }}
+{{ end }}
+{{ return ($out | safeHTML) }}

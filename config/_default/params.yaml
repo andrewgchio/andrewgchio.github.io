@@ -13,7 +13,7 @@ hugoblox:
   # ────────────────────────────────────────────────────────────────────────────
   identity:
     # Site name - shown in navbar, footer, copyright, and browser title by default
-    name: "Your Name"
+    name: "Andrew Chio"
     # Legal entity for copyright notices (defaults to name if not set)
     organization: ""
     # Schema.org type for structured data
@@ -21,11 +21,10 @@ hugoblox:
     # Short tagline displayed on your site
     tagline: ""
     # Site meta description for search engines and social sharing
-    description: "The highly-customizable Hugo Academic theme powered by HugoBlox
-      Kit. Easily create your personal academic website."
+    description: "Personal Website for Andrew Chio"
     # Social accounts (used for meta tags like Twitter Cards)
-    social:
-      twitter: "GoOwnable" # Twitter/X handle for Twitter Cards (without @)
+    # social:
+    #   twitter: "GoOwnable" # Twitter/X handle for Twitter Cards (without @)
 
   # ────────────────────────────────────────────────────────────────────────────
   # THEME
@@ -71,7 +70,7 @@ hugoblox:
     # Border radius: 'none', 'sm', 'md', 'lg', or 'full'
     radius: "md"
     # Spacing density: 'compact', 'comfortable', or 'spacious'
-    spacing: "spacious"
+    spacing: "compact"
     # Avatar shape in author profiles
     avatar_shape: circle # circle | square | rounded
 
@@ -90,7 +89,7 @@ hugoblox:
     # Feature toggles
     search: true
     theme_toggle: true
-    theme_picker: true
+    theme_picker: false
     language_switcher: true
     # Call-to-action button
     cta:
@@ -115,9 +114,9 @@ hugoblox:
   # ────────────────────────────────────────────────────────────────────────────
   copyright:
     # Copyright notice - supports {year}, {name}, {license} placeholders
-    notice: "© {year} {name}. This work is licensed under {license}"
+    notice: "© {year} {name}."
     license:
-      type: cc # cc | custom
+      type: custom # cc | custom
       allow_derivatives: false
       share_alike: true
       allow_commercial: false
@@ -130,17 +129,17 @@ hugoblox:
     # Browser tab title override (defaults to identity.name if not set)
     title: ""
     # For local_business identity type only
-    location:
-      address:
-        street: ""
-        city: ""
-        region: ""
-        postal_code: ""
-        country: ""
-      coordinates:
-        latitude: null
-        longitude: null
-      phone: ""
+    # location:
+    #   address:
+    #     street: ""
+    #     city: ""
+    #     region: ""
+    #     postal_code: ""
+    #     country: ""
+    #   coordinates:
+    #     latitude: null
+    #     longitude: null
+    #   phone: ""
     # AI/LLM crawler guidance (llms.txt)
     ai:
       allow:
@@ -154,7 +153,7 @@ hugoblox:
   # Content rendering and behavior
   # ────────────────────────────────────────────────────────────────────────────
   content:
-    # Math rendering
+    # Math rendering (off: no page uses math, and it loads KaTeX on every page)
     math:
       enable: false
     # Table of contents
@@ -162,10 +161,10 @@ hugoblox:
       enable: true
     # Reading time estimates
     reading_time:
-      enable: true
+      enable: false
     # Academic citations
     citations:
-      style: apa # apa | mla | chicago | ieee
+      style: ieee # apa | mla | chicago | ieee
 
   # ────────────────────────────────────────────────────────────────────────────
   # SEARCH
@@ -174,7 +173,7 @@ hugoblox:
   search:
     enable: true
     # Trending/suggested search terms
-    suggestions: []
+    suggestions: ["publications"]
     # Quick action shortcuts in search modal
     quick_actions: []
 
@@ -199,7 +198,7 @@ hugoblox:
   # ────────────────────────────────────────────────────────────────────────────
   analytics:
     google:
-      measurement_id: "" # Google Analytics 4: G-XXXXXXXXXX
+      measurement_id: "G-K5JFCLR3J6" # Google Analytics 4: G-XXXXXXXXXX
     google_tag_manager:
       container_id: "" # GTM-XXXXXXX
     plausible:
@@ -231,7 +230,7 @@ hugoblox:
   # ────────────────────────────────────────────────────────────────────────────
   repository:
     enable: false
-    url: "" # e.g., https://github.com/username/repo
+    url: "" # https://github.com/username/repository"
     branch: main
     content_dir: content
 
@@ -241,19 +240,8 @@ hugoblox:
   # ────────────────────────────────────────────────────────────────────────────
   locale:
     date_format: "Jan 2, 2006" # Go time format
-    time_format: "3:04 PM"
+    time_format: "15:04"
     address_format: en-us
-
-  # ────────────────────────────────────────────────────────────────────────────
-  # SECURITY
-  # Security headers and policies (requires Netlify integration)
-  # ────────────────────────────────────────────────────────────────────────────
-  security:
-    csp:
-      policy: ""
-      report_only: false
-    frame_options: allow # deny | sameorigin | allow - allow enables iframe embedding
-    permissions_policy: ""
 
   # ────────────────────────────────────────────────────────────────────────────
   # PRIVACY
@@ -268,7 +256,7 @@ hugoblox:
   # Development and debugging (hidden in production)
   # ────────────────────────────────────────────────────────────────────────────
   debug:
-    enable: false
+    enable: true
     hud:
       position: bottom-left # top-left | top-right | bottom-left | bottom-right
       opacity: 1.0

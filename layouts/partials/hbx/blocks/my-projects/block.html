@@ -1,0 +1,208 @@
+{{/* Hugo Blox: Projects — tag filter bar over a grid, optionally grouped by
+     funding source.
+
+     Tag filter: chips derived from the projects' own `tags`. Multi-select is a
+     union (a project matching ANY selected tag shows), which is the usual
+     behaviour for browsing tags.
+
+     Funding grouping: each project may declare funders in front matter, using
+     the same shape as the publications:
+
+       funding:
+         - funder: "National Science Foundation"
+           grant: "CNS-1952247"       # optional
+           url: "https://www.nsf.gov" # optional
+
+     A bare string (`funding: "NSF"`) or list of strings also works, and a
+     project with two funders appears under both headings. With no funding data
+     anywhere the block renders one ungrouped grid, so it stays useful while
+     that information is filled in.
+
+     Every group is passed the *collection* size as `len`: article-grid--start
+     narrows to a centred 500px column at len==1, which would make single
+     project groups look broken. */}}
+
+{{ $page := .wcPage }}
+{{ $block := .wcBlock }}
+{{ $content := $block.content }}
+{{ if not (reflect.IsMap $content) }}{{ $content = dict }}{{ end }}
+{{ $design := $block.design }}
+{{ if not (reflect.IsMap $design) }}{{ $design = dict }}{{ end }}
+{{ $filters := index $content "filters" }}
+{{ if not (reflect.IsMap $filters) }}{{ $filters = dict }}{{ end }}
+
+{{/* ---------------- Page selection --------------------------------------- */}}
+{{ $folders := slice }}
+{{ $folders_raw := index $filters "folders" }}
+{{ if reflect.IsSlice $folders_raw }}
+  {{ range $folders_raw }}
+    {{ $f := strings.TrimSpace (printf "%v" .) }}
+    {{ if $f }}{{ $folders = $folders | append $f }}{{ end }}
+  {{ end }}
+{{ else if eq (printf "%T" $folders_raw) "string" }}
+  {{ with strings.TrimSpace $folders_raw }}{{ $folders = slice . }}{{ end }}
+{{ end }}
+{{ if not $folders }}{{ $folders = slice "projects" }}{{ end }}
+
+{{ $query := where (where site.RegularPages "Section" "in" $folders) "Params.private" "!=" true }}
+{{ $query = $query.ByDate.Reverse }}
+
+{{/* ---------------- Facets ------------------------------------------------ */}}
+{{ $tags := slice }}
+{{ range $query }}
+  {{ range (.Params.tags | default slice) }}
+    {{ $t := strings.TrimSpace (printf "%v" .) }}
+    {{ if and $t (not (in $tags $t)) }}{{ $tags = $tags | append $t }}{{ end }}
+  {{ end }}
+{{ end }}
+{{ $tags = sort $tags }}
+
+{{ $funders := slice }}
+{{ $meta := dict }}
+{{ $byFunder := dict }}
+{{ $unfunded := slice }}
+{{ range $item := $query }}
+  {{ $names := slice }}
+  {{ $raw := $item.Params.funding }}
+  {{ if reflect.IsSlice $raw }}
+    {{ range $raw }}
+      {{ if reflect.IsMap . }}
+        {{ with (index . "funder") }}{{ $names = $names | append (strings.TrimSpace (printf "%v" .)) }}{{ end }}
+      {{ else }}
+        {{ $names = $names | append (strings.TrimSpace (printf "%v" .)) }}
+      {{ end }}
+    {{ end }}
+  {{ else if eq (printf "%T" $raw) "string" }}
+    {{ with strings.TrimSpace $raw }}{{ $names = $names | append . }}{{ end }}
+  {{ end }}
+
+  {{ if $names }}
+    {{ range $name := $names }}
+      {{ if $name }}
+        {{ if not (in $funders $name) }}
+          {{ $funders = $funders | append $name }}
+          {{ $byFunder = merge $byFunder (dict $name slice) }}
+          {{ $meta = merge $meta (dict $name (dict "url" "" "grants" slice)) }}
+        {{ end }}
+        {{ $byFunder = merge $byFunder (dict $name ((index $byFunder $name) | append $item)) }}
+        {{ if reflect.IsSlice $raw }}
+          {{ range $raw }}
+            {{ if reflect.IsMap . }}
+              {{ if eq (strings.TrimSpace (printf "%v" (index . "funder"))) $name }}
+                {{ $m := index $meta $name }}
+                {{ with (index . "url") }}{{ $m = merge $m (dict "url" (printf "%v" .)) }}{{ end }}
+                {{ with (index . "grant") }}
+                  {{ $g := printf "%v" . }}
+                  {{ if not (in (index $m "grants") $g) }}{{ $m = merge $m (dict "grants" ((index $m "grants") | append $g)) }}{{ end }}
+                {{ end }}
+                {{ $meta = merge $meta (dict $name $m) }}
+              {{ end }}
+            {{ end }}
+          {{ end }}
+        {{ end }}
+      {{ end }}
+    {{ end }}
+  {{ else }}
+    {{ $unfunded = $unfunded | append $item }}
+  {{ end }}
+{{ end }}
+{{ $funders = sort $funders }}
+
+{{/* ---------------- Copy + config ---------------------------------------- */}}
+{{ $view := $design.view | default "article-grid" }}
+{{ $columns := $design.columns | default 3 }}
+{{ $config := dict "columns" $columns "len" (len $query)
+    "fill_image" (partial "functions/coerce_bool" (dict "value" (index $design "fill_image") "default" true))
+    "show_date" (partial "functions/coerce_bool" (dict "value" (index $design "show_date") "default" true))
+    "show_read_time" (partial "functions/coerce_bool" (dict "value" (index $design "show_read_time") "default" true))
+    "show_read_more" (partial "functions/coerce_bool" (dict "value" (index $design "show_read_more") "default" true)) }}
+
+{{ $title := "" }}
+{{ with index $content "title" }}{{ $title = printf "%v" . | emojify | $page.RenderString }}{{ end }}
+{{ $text := "" }}
+{{ with index $content "text" }}{{ $text = printf "%v" . | emojify | $page.RenderString }}{{ end }}
+{{ $unfunded_label := "Other projects" }}
+{{ with index $content "unfunded_label" }}{{ $unfunded_label = printf "%v" . }}{{ end }}
+
+{{ if $title }}
+<div class="flex flex-col items-center max-w-prose mx-auto gap-3 justify-center px-6 md:px-0">
+  <div class="mb-6 text-3xl font-bold text-gray-900 dark:text-white">{{ $title }}</div>
+  {{ with $text }}<p>{{ . }}</p>{{ end }}
+</div>
+{{ end }}
+
+<div class="flex flex-col items-center px-6">
+
+  {{/* Tag filter bar. `hidden` until the script wires it up, so browsers with
+       JS disabled get the full list rather than dead controls. */}}
+  {{ with $tags }}
+  <div class="w-full max-w-screen-lg px-8 xl:px-5">
+    <div class="pf-filter" data-pf-filter hidden role="group" aria-label="Filter projects by tag">
+      <div class="pf-filter__chips">
+        <button type="button" class="pf-chip pf-chip--all" data-pf-all aria-pressed="true">All</button>
+        {{ range . }}
+        <button type="button" class="pf-chip" data-pf-tag="{{ . }}" aria-pressed="false">{{ . }}</button>
+        {{ end }}
+      </div>
+      <div class="pf-filter__status">
+        <span data-pf-count role="status" aria-live="polite"></span>
+      </div>
+    </div>
+  </div>
+  {{ end }}
+
+  {{ if not $funders }}
+    {{/* No funding data yet — a single ungrouped grid. */}}
+    <div class="w-full flex flex-col items-center" data-pf-group>
+      {{ partial "functions/render_view" (dict "fragment" "start" "page" $block "item" $page "view" $view "config" $config) }}
+      {{ range $index, $item := $query }}
+        <div class="pf-item" data-tags="{{ delimit ($item.Params.tags | default slice) "|" }}">
+          {{ partial "functions/render_view" (dict "page" $block "item" $item "view" $view "index" $index "config" $config) }}
+        </div>
+      {{ end }}
+      {{ partial "functions/render_view" (dict "fragment" "end" "page" $block "item" $page "view" $view) }}
+    </div>
+  {{ else }}
+    {{ range $funder := $funders }}
+      {{ $items := index $byFunder $funder }}
+      {{ $m := index $meta $funder }}
+      <div class="w-full flex flex-col items-center" data-pf-group>
+        <div class="w-full max-w-screen-lg px-8 xl:px-5 mt-12">
+          <h3 class="pbf-funder">
+            {{ with $m.url }}<a href="{{ . }}" target="_blank" rel="noopener">{{ $funder }}</a>{{ else }}{{ $funder }}{{ end }}
+            <span class="pbf-funder__count" data-pf-group-count>{{ len $items }}</span>
+          </h3>
+          {{ with $m.grants }}<p class="pbf-funder__grants">{{ delimit . " · " }}</p>{{ end }}
+        </div>
+        {{ partial "functions/render_view" (dict "fragment" "start" "page" $block "item" $page "view" $view "config" $config) }}
+        {{ range $index, $item := $items }}
+          <div class="pf-item" data-tags="{{ delimit ($item.Params.tags | default slice) "|" }}">
+            {{ partial "functions/render_view" (dict "page" $block "item" $item "view" $view "index" $index "config" $config) }}
+          </div>
+        {{ end }}
+        {{ partial "functions/render_view" (dict "fragment" "end" "page" $block "item" $page "view" $view) }}
+      </div>
+    {{ end }}
+
+    {{ with $unfunded }}
+      <div class="w-full flex flex-col items-center" data-pf-group>
+        <div class="w-full max-w-screen-lg px-8 xl:px-5 mt-12">
+          <h3 class="pbf-funder">{{ $unfunded_label }}<span class="pbf-funder__count" data-pf-group-count>{{ len . }}</span></h3>
+        </div>
+        {{ partial "functions/render_view" (dict "fragment" "start" "page" $block "item" $page "view" $view "config" $config) }}
+        {{ range $index, $item := . }}
+          <div class="pf-item" data-tags="{{ delimit ($item.Params.tags | default slice) "|" }}">
+            {{ partial "functions/render_view" (dict "page" $block "item" $item "view" $view "index" $index "config" $config) }}
+          </div>
+        {{ end }}
+        {{ partial "functions/render_view" (dict "fragment" "end" "page" $block "item" $page "view" $view) }}
+      </div>
+    {{ end }}
+  {{ end }}
+
+  <p class="pf-empty" data-pf-empty hidden>No projects match these tags.</p>
+
+</div>
+
+{{ $js := resources.Get "js/project-filter.js" | js.Build (dict "minify" true) | fingerprint "sha256" }}
+<script src="{{ $js.RelPermalink }}" integrity="{{ $js.Data.Integrity }}" defer></script>

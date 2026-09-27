@@ -1,0 +1,94 @@
+{{/* Hugo Blox: content collection in the site's two-column rhythm.
+
+     Heading sits in a sticky left column, the list on the right, and the
+     "see all" archive link closes the list rather than sitting under the title.
+
+     Filter semantics mirror the upstream `content-collection` block, so the
+     same keys behave the same way. Note `featured_only` / `exclude_featured`
+     are read from INSIDE `filters:`, as upstream does. */}}
+
+{{ $page := .wcPage }}
+{{ $block := .wcBlock }}
+{{ $content := $block.content }}
+{{ if not (reflect.IsMap $content) }}{{ $content = dict }}{{ end }}
+{{ $design := $block.design }}
+{{ if not (reflect.IsMap $design) }}{{ $design = dict }}{{ end }}
+{{ $filters := index $content "filters" }}
+{{ if not (reflect.IsMap $filters) }}{{ $filters = dict }}{{ end }}
+
+{{/* Folders */}}
+{{ $folders := slice }}
+{{ $folders_raw := index $filters "folders" }}
+{{ if reflect.IsSlice $folders_raw }}
+  {{ range $folders_raw }}
+    {{ $f := strings.TrimSpace (printf "%v" .) }}
+    {{ if $f }}{{ $folders = $folders | append $f }}{{ end }}
+  {{ end }}
+{{ else if eq (printf "%T" $folders_raw) "string" }}
+  {{ with strings.TrimSpace $folders_raw }}{{ $folders = slice . }}{{ end }}
+{{ end }}
+{{ if not $folders }}{{ $folders = slice "publications" }}{{ end }}
+
+{{ $query := where site.RegularPages "Section" "in" $folders }}
+{{ $query = where $query "Params.private" "!=" true }}
+
+{{ if partial "functions/coerce_bool" (dict "value" (index $filters "featured_only") "default" false) }}
+  {{ $query = where $query "Params.featured" true }}
+{{ end }}
+{{ if partial "functions/coerce_bool" (dict "value" (index $filters "exclude_featured") "default" false) }}
+  {{ $query = where $query "Params.featured" "!=" true }}
+{{ end }}
+
+{{/* Sort */}}
+{{ $sort_by := "Date" }}
+{{ $sort_by_raw := index $content "sort_by" }}
+{{ if eq (printf "%T" $sort_by_raw) "string" }}
+  {{ with strings.TrimSpace $sort_by_raw }}{{ $sort_by = . }}{{ end }}
+{{ end }}
+{{ $sort_by = partial "functions/get_sort_by_parameter" $sort_by }}
+{{ $ascending := false }}
+{{ $order_raw := index $content "order" }}
+{{ if eq (printf "%T" $order_raw) "string" }}
+  {{ if eq (lower (strings.TrimSpace $order_raw)) "asc" }}{{ $ascending = true }}{{ end }}
+{{ end }}
+{{ $query = sort $query $sort_by (cond $ascending "asc" "desc") }}
+
+{{/* Limit */}}
+{{ $items_count := partial "functions/coerce_int" (dict "value" (index $content "count") "default" 5 "min" 0) }}
+{{ if gt $items_count 0 }}{{ $query = first $items_count $query }}{{ end }}
+
+{{/* Copy */}}
+{{ $title := "" }}
+{{ with index $content "title" }}{{ $title = printf "%v" . | emojify | $page.RenderString }}{{ end }}
+{{ $text := "" }}
+{{ with index $content "text" }}{{ $text = printf "%v" . | emojify | $page.RenderString }}{{ end }}
+
+{{/* Archive link */}}
+{{ $archive := index $content "archive" }}
+{{ if not (reflect.IsMap $archive) }}{{ $archive = dict }}{{ end }}
+{{ $archive_url := "" }}
+{{ if partial "functions/coerce_bool" (dict "value" (index $archive "enable") "default" false) }}
+  {{ with index $archive "link" }}{{ $archive_url = printf "%v" . }}{{ end }}
+  {{ if not $archive_url }}
+    {{ with site.GetPage "Section" (index $folders 0) }}{{ $archive_url = .RelPermalink }}{{ end }}
+  {{ end }}
+{{ end }}
+{{ $archive_text := "See all" }}
+{{ with index $archive "text" }}{{ $archive_text = printf "%v" . }}{{ end }}
+
+{{ $view := $design.view | default "citation" }}
+{{ $config := dict "columns" 1 "len" (len $query)
+    "fill_image" (partial "functions/coerce_bool" (dict "value" (index $design "fill_image") "default" true))
+    "show_date" (partial "functions/coerce_bool" (dict "value" (index $design "show_date") "default" true))
+    "show_read_time" (partial "functions/coerce_bool" (dict "value" (index $design "show_read_time") "default" true))
+    "show_read_more" (partial "functions/coerce_bool" (dict "value" (index $design "show_read_more") "default" true)) }}
+
+{{ $body := partial "my/collection-items.html" (dict "block" $block "pages" $query "view" $view "config" $config) }}
+
+{{ partial "my/section-2col.html" (dict
+    "title" $title
+    "text" $text
+    "body" $body
+    "archive_url" $archive_url
+    "archive_text" $archive_text
+    "class" "my-collection") }}

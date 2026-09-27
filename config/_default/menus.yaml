@@ -4,24 +4,37 @@
   #   The weight parameter defines the order that the links will appear in.
 
 main:
-  - name: Bio
-    url: /
+  - name: Home
+    url: ''
     weight: 10
-  - name: Papers
-    url: /#papers
-    weight: 11
-  - name: Talks
-    url: /#talks
-    weight: 12
-  - name: News
-    url: /#news
-    weight: 13
   - name: Experience
-    url: experience/
+    url: '/#experience'
     weight: 20
+  - name: Awards
+    url: '/#awards'
+    weight: 25
+
   - name: Projects
-    url: projects/
+    url: projects
     weight: 30
-  - name: Courses
-    url: courses/
-    weight: 40
+  - name: Publications
+    url: publications
+    weight: 50
+  - name: News 
+    url: '/#news'
+    weight: 55
+  # - name: Grants
+  #   url: grants
+  #   weight: 55
+  # - name: Service
+  #   url: service
+  #   weight: 58
+  - name: Contact
+    url: '/#contact'
+    weight: 60
+  - name: CV
+    # Absolute URL on purpose: the navbar and sidebar only add target="_blank"
+    # to menu entries whose URL starts with "http", and a CV PDF should open in
+    # a new tab rather than replace the site.
+    url: https://andrewgchio.github.io/uploads/CV_AndrewChio_Aug2026.pdf
+    weight: 70

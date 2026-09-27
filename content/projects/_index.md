@@ -5,10 +5,9 @@ type: landing
 
 # Page sections
 sections:
-  - block: collection
+  - block: my-projects
     content:
-      title: Selected Projects
-      text: I enjoy making things. Here are a selection of projects that I have worked on over the years.
+      title: Projects
       filters:
         folders:
           - projects

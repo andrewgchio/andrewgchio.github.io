@@ -1,0 +1,79 @@
+{{/* Hugo Blox: Contact, in the site's two-column rhythm — the heading alone on
+     the left, the details (email, room, links) on the right.
+
+     Email defaults to the author profile in data/authors/me.yaml and can be
+     overridden with `email:` in the block config. Social links are not shown
+     here — they already appear in the site header and biography block. */}}
+
+{{ $page := .wcPage }}
+{{ $block := .wcBlock }}
+{{ $content := $block.content }}
+{{ if not (reflect.IsMap $content) }}{{ $content = dict }}{{ end }}
+
+{{ $title := "Contact" }}
+{{ with index $content "title" }}{{ $title = printf "%v" . | emojify | $page.RenderString }}{{ end }}
+{{ $text := "" }}
+{{ with index $content "text" }}{{ $text = printf "%v" . | emojify | $page.RenderString }}{{ end }}
+
+{{ $username := "me" }}
+{{ with index $content "username" }}{{ $username = strings.TrimSpace (printf "%v" .) }}{{ end }}
+{{ $profile := partial "functions/get_author_profile" $username }}
+
+{{/* Email: explicit, else the `envelope` link on the profile. */}}
+{{ $email := "" }}
+{{ with index $content "email" }}{{ $email = strings.TrimSpace (printf "%v" .) }}{{ end }}
+{{ if not $email }}
+  {{ range ($profile.links | default slice) }}
+    {{ $u := .url | default .link | default "" }}
+    {{ if and (not $email) (hasPrefix $u "mailto:") }}{{ $email = strings.TrimPrefix "mailto:" $u }}{{ end }}
+  {{ end }}
+{{ end }}
+
+{{ $phone := "" }}
+{{ with index $content "phone" }}{{ $phone = strings.TrimSpace (printf "%v" .) }}{{ end }}
+
+{{/* Address lines */}}
+{{ $address := index $content "address" }}
+{{ $lines := slice }}
+{{ if reflect.IsMap $address }}
+  {{ with index $address "lines" }}
+    {{ if reflect.IsSlice . }}
+      {{ range . }}
+        {{ $l := strings.TrimSpace (printf "%v" .) }}
+        {{ if $l }}{{ $lines = $lines | append $l }}{{ end }}
+      {{ end }}
+    {{ end }}
+  {{ end }}
+{{ end }}
+
+{{ $affiliation := "" }}
+{{ with ($profile.affiliations | default slice) }}
+  {{ $a := index . 0 }}
+  {{ if reflect.IsMap $a }}{{ $affiliation = $a.name | default "" }}{{ end }}
+{{ end }}
+
+{{ $body := "" }}
+{{ $rows := "" }}
+
+{{ with $email }}
+  {{ $rows = printf `%s<div class="mc-row"><div class="mc-label">Email</div><div class="mc-value"><a href="mailto:%s">%s</a></div></div>` $rows . . }}
+{{ end }}
+
+{{ with $phone }}
+  {{ $rows = printf `%s<div class="mc-row"><div class="mc-label">Phone</div><div class="mc-value"><a href="tel:%s">%s</a></div></div>` $rows . . }}
+{{ end }}
+
+{{ if or $lines $affiliation }}
+  {{ $addr := "" }}
+  {{ with $affiliation }}{{ $addr = printf `<div>%s</div>` . }}{{ end }}
+  {{ range $lines }}{{ $addr = printf `%s<div>%s</div>` $addr . }}{{ end }}
+  {{ $rows = printf `%s<div class="mc-row"><div class="mc-label">Office</div><div class="mc-value">%s</div></div>` $rows $addr }}
+{{ end }}
+
+{{ $body = printf `<div class="mc-details">%s</div>` $rows }}
+
+{{ partial "my/section-2col.html" (dict
+    "title" $title
+    "text" $text
+    "body" ($body | safeHTML)
+    "class" "my-contact") }}

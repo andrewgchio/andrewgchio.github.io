@@ -2,115 +2,247 @@ schema: hugoblox/author/v1
 slug: me
 is_owner: true
 name:
-  display: Dr. Alex Johnson
-  given: Alex
-  family: Johnson
+  display: Andrew Chio
+  given: Andrew
+  family: Chio
   alternate: ''  # Example: 王伟
   pronunciation: ''  # Example: Wáng Wěi
-  pronouns: he/him
+  pronouns: ''
 postnominals:
-  - PhD
-  - MIEEE
+  # - PhD
+  # - MIEEE
 status:
-  icon: "☕️"
-role: Senior AI Research Scientist
+  icon: ''
+role: CNLS Postdoctoral Fellow
 bio: |
-  Alex Johnson is a Senior AI Research Scientist at Meta AI. His research
-  has been published in top conferences like NeurIPS and ICML, with over
-  10,000 citations. Alex is passionate about pushing the boundaries of AI
-  while ensuring ethical development.
+  Andrew Chio is a Center for Nonlinear Studies (CNLS) Postdoctoral Research Fellow at Los Alamos National Laboratory, where he works with Dr. Russell Bent and Dr. Kaarthik Sundar in the T-5 Applied Mathematics and Plasma Physics Group. 
+  His research leverages physics-based models and data-driven methods to explore and address questions of resilience in real-world critical infrastructure, such as buildings, water, and power systems. 
+  He received his Ph.D. in Computer Science from the University of California, Irvine in 2026, where he was advised by Prof. Nalini Venkatasubramanian and was a member of the Distributed Systems Middleware Group and the Information Systems Group.
+  Andrew is the recipient of several fellowships and awards, including the NSF CPS Rising Star Award (2025), the CPS-IoT Week PhD Forum Best Poster Award (2025), the UC National Laboratory In-Residence Graduate Fellowship (2022), the ARCS Foundation Scholarship (2022), and the Mark Weiser Best Paper Award at IEEE PerCom 2022.
+
 
 affiliations:
-  - name: Meta AI
-    url: https://ai.meta.com/
+  - name: Los Alamos National Laboratory
+    url: https://www.lanl.gov/
 
 links:
-  - icon: at-symbol
-    url: mailto:alex.johnson@example.com
-    label: E-mail Me
-  - icon: brands/x
-    url: https://x.com/example
+  - icon: envelope
+    url: mailto:achio@lanl.gov
   - icon: brands/github
-    url: https://github.com/example
+    url: https://github.com/andrewgchio
   - icon: brands/linkedin
-    url: https://www.linkedin.com/in/example/
+    url: https://www.linkedin.com/in/andrew-chio/
   - icon: academicons/google-scholar
-    url: https://scholar.google.com/citations?user=example
+    url: https://scholar.google.com/citations?user=vVDC3z8AAAAJ&hl=en
   - icon: academicons/orcid
-    url: https://orcid.org/0000-0002-1825-0097
+    url: https://orcid.org/0000-0001-8920-2749
+  - icon: cv
+    link: uploads/CV_AndrewChio_Aug2026.pdf
 
 interests:
-  - Large Language Models
-  - Computer Vision
-  - Reinforcement Learning
-  - AI Ethics
+  - Cyber-Physical Systems
+  - Internet-of-Things
+  - Middleware
+  - Machine Learning
+  - Optimization
+  - Distributed Systems
 
 education:
-  - degree: PhD Computer Science
-    institution: Stanford University
-    start: 2015-09-01
-    end: 2019-06-30
-    summary: |
-      Thesis on scaling laws for neural language models. Published 5 papers in NeurIPS and ICML.
-    button:
-      text: Download dissertation
-      url: /resume.pdf
-      icon: hero/arrow-down-tray
-  - degree: MS Computer Science
-    institution: Carnegie Mellon University
-    start: 2013-09-01
-    end: 2015-05-31
-  - degree: BS Computer Science
-    institution: MIT
-    start: 2009-09-01
-    end: 2013-05-31
+  - degree: Ph.D. Computer Science
+    institution: University of California, Irvine 
+    year: 2026
+  - degree: B.S. Computer Science
+    institution: University of California, Irvine
+    year: 2019
 
 experience:
-  - role: Senior AI Research Scientist
-    org: Meta AI
-    start: 2020-01-01
-    summary: |
-      Leading research on multimodal AI systems. Contributed to Llama 2 and other open-source models.
-    button:
-      text: View portfolio
-      url: /
-      icon: hero/arrow-down-tray
-  - role: AI Research Intern
-    org: OpenAI
-    start: 2019-06-01
-    end: 2019-12-31
-    summary: |
-      Worked on GPT-3 scaling. Co-authored paper on prompt engineering.
+  - role: CNLS Postdoctoral Research Fellow
+    group: "_[Center for Nonlinear Studies](https://cnls.lanl.gov/), [T-5 Group](https://www.lanl.gov/engage/organizations/aldsct/theoretical/ampp)_"
+    org: Theoretical Division, Los Alamos National Laboratory
+    org_url: https://www.lanl.gov/engage/organizations/aldsct/theoretical
+    logo: org-lanl
+    icon: hero/sparkles
+    start: "2025-08-10"
+    summary: |-
+      Mentors: [Dr. Russell Bent](https://public.lanl.gov/rbent/), [Dr. Kaarthik Sundar](https://kaarthiksundar.github.io/)
 
-skills:
-  - name: Technical Skills
-    items:
-      - label: Python
-        level: 5
-      - label: Machine Learning
-        level: 5
-      - label: Cloud Computing
-        level: 4
-  - name: Research & Communication
-    items:
-      - label: Academic Writing
-        level: 5
-      - label: Conference Presentations
-        level: 4
-      - label: Grant Proposals
-        level: 4
+      Postdoctoral research associate working on multi-physics scale bridging modeling and reasoning.
 
-languages:
-  - name: English
-    level: 5
-    label: Native
-  - name: Spanish
-    level: 4
-    label: Fluent
+  - role: PhD Researcher
+    group: "_[Distributed Systems Middleware Group](https://www.ics.uci.edu/~dsm/), [Information Systems Group](https://isg.ics.uci.edu/)_"
+    org: Dept. of Computer Science, University of California, Irvine
+    org_url: https://cs.ics.uci.edu
+    logo: org-uci
+    start: "2019-09-26"
+    end: "2026-06-15"
+    summary: |-
+      Advisor: [Prof. Nalini Venkatasubramanian](https://nalini.ics.uci.edu)
+
+      Joined the [Distributed Systems Middleware Group](https://www.ics.uci.edu/~dsm/) and the [Information Systems Group](https://isg.ics.uci.edu/).
+
+  - role: Graduate Student Researcher
+    group: "_[T-5 Applied Mathematics and Plasma Physics Group](https://www.lanl.gov/engage/organizations/aldsct/theoretical/ampp)_"
+    org: Theoretical Division, Los Alamos National Laboratory
+    org_url: https://www.lanl.gov/engage/organizations/aldsct/theoretical
+    logo: org-lanl
+    start: "2024-06-01"
+    end: "2024-09-12"
+    summary: |-
+      Mentors: [Dr. Russell Bent](https://public.lanl.gov/rbent/), [Dr. Andrey Y. Lokhov](https://www.lptms.universite-paris-saclay.fr/andrey-lokhov/), [Prof. Nalini Venkatasubramanian](https://nalini.ics.uci.edu)
+
+      Continued research work on N-k interdiction in electric grid networks and mobility map inference from thermal data.
+
+  - role: PhD Visiting Research Fellow
+    group: "_[T-5 Applied Mathematics and Plasma Physics Group](https://www.lanl.gov/engage/organizations/aldsct/theoretical/ampp)_"
+    org: Theoretical Division, Los Alamos National Laboratory
+    org_url: https://www.lanl.gov/engage/organizations/aldsct/theoretical
+    logo: org-lanl
+    start: "2022-04-01"
+    end: "2024-04-01"
+    summary: |-
+      Mentors: [Dr. Russell Bent](https://public.lanl.gov/rbent/), [Dr. Andrey Y. Lokhov](https://www.lptms.universite-paris-saclay.fr/andrey-lokhov/), [Prof. Nalini Venkatasubramanian](https://nalini.ics.uci.edu)
+
+      Part of a fellowship from the [UC National Laboratory Fees Research Program](https://www.ucop.edu/research-initiatives/programs/lab-fees/index.html).
+
+  - role: Undergraduate Research Assistant
+    group: "_[TIPPERS IoT Programming Project](https://tippersweb.ics.uci.edu)_"
+    org: Dept. of Computer Science, University of California, Irvine
+    org_url: https://cs.ics.uci.edu
+    logo: org-uci
+    start: "2019-01-01"
+    end: "2019-06-14"
+    summary: |-
+      Advisors: [Prof. Georgios Bouloukakis](https://gbouloukakis.com), [Prof. Roberto Yus](https://robertoyus.com), [Prof. Sharad Mehrotra](https://sites.google.com/view/sharad-mehrotra-at-uci/home), [Prof. Nalini Venkatasubramanian](https://nalini.ics.uci.edu)
+
+      Part of the [TIPPERS](https://tippersweb.ics.uci.edu) project, which looks at developing a system to manage IoT smart spaces by collecting sensor data, inferring semantically meaningful information from it, and offering such inferences to developers creating smart applications.
+
+  - role: Undergraduate Research Assistant
+    group: "_[Distributed Systems Middleware Group](https://www.ics.uci.edu/~dsm/)_"
+    org: Dept. of Computer Science, University of California, Irvine
+    org_url: https://cs.ics.uci.edu
+    logo: org-uci
+    start: "2018-09-24"
+    end: "2019-06-14"
+    summary: |-
+      Advisors: [Prof. Georgios Bouloukakis](https://gbouloukakis.com), [Prof. Nalini Venkatasubramanian](https://nalini.ics.uci.edu)
+
+      Took Individual Study course (CS 199) to continue research with the [Distributed Systems Middleware Group](https://ics.uci.edu/~dsm).
+
+  - role: SURF-IoT Fellow
+    group: "_[Distributed Systems Middleware Group](https://www.ics.uci.edu/~dsm/)_"
+    org: Dept. of Computer Science, University of California, Irvine
+    org_url: https://cs.ics.uci.edu
+    logo: org-uci
+    start: "2018-06-25"
+    end: "2018-08-30"
+    summary: |-
+      Advisors: [Prof. Georgios Bouloukakis](https://gbouloukakis.com), [Prof. Nalini Venkatasubramanian](https://nalini.ics.uci.edu)
+
+      Part of the [UROP SURF-IoT](https://www.urop.uci.edu) Program, which offers undergraduate students an opportunity to work with faculty members on a research project related to the Internet-of-Things.
+
+
 
 awards:
-  - title: Best Paper Award
-    awarder: NeurIPS
-    date: "2022-12-01"
-    summary: Awarded for groundbreaking work on efficient training of large models.
-    icon: hero/trophy
+  - title: Center for Nonlinear Studies Fellow
+    awarder: Los Alamos National Laboratory
+    date: "2026-08-21"
+    url: https://cnls.lanl.gov/External/Postdocs.php
+
+  - title: Best Poster Award
+    awarder: 2025 CPS-IoT Week PhD Forum
+    date: "2025-05-06"
+ 
+  - title: NSF CPS Rising Star 2025
+    awarder: National Science Foundation
+    date: "2025-03-11"
+    url: https://cps-vo.org/group/CPSRisingStarsWorkshop25
+ 
+  - title: NSF Advanced Studies Institutes Fellow
+    awarder: National Science Foundation
+    date: "2024-05-18"
+    url: https://sites.bu.edu/nsf-asi/japan/
+ 
+  - title: ARCS Foundation Scholar
+    awarder: ARCS Foundation, Orange County Chapter
+    date_start: "2022-09-16"
+    date_end: "2024-09-16"
+    url: https://orange-county.arcsfoundation.org/
+ 
+  - title: UC National Lab In-Residence Graduate Fellowship
+    awarder: University of California Research Initiatives
+    date_start: "2022-04-01"
+    date_end: "2024-04-01"
+    url: https://www.ucop.edu/research-initiatives/programs/lab-fees/lfrp-grad-fellows.html
+ 
+  - title: Mark Weiser Best Paper Award
+    awarder: 20th IEEE International Conference on Pervasive Computing and Communications (PerCom)
+    date: "2022-03-24"
+    url: https://percom.org/PerCom2022/
+ 
+  - title: SURF-IoT Summer Fellowship
+    awarder: Undergraduate Research Opportunities Program, University of California, Irvine
+    date_start: "2018-06-25"
+    date_end: "2018-08-30"
+    url: https://www.urop.uci.edu
+ 
+  - title: "Most Startup Potential: Medipal"
+    awarder: Med AppJam, University of California, Irvine
+    date: "2016-11-16"
+ 
+  - title: Dean's Honor Roll
+    awarder: University of California, Irvine
+    date_start: "2015-09-24"
+    date_end: "2019-06-14"
+ 
+
+
+teaching:
+  - role: Teaching Assistant
+    org: Dept. of Computer Science, University of California, Irvine
+    org_url: https://cs.ics.uci.edu
+    logo: org-uci
+    start: "2019-09-23"
+    end: "2021-06-11"
+    summary: |-
+      Course(s):
+
+      * ICS 46: Data Structures Implementation and Analysis ([F19](https://ics.uci.edu/~pattis/ICS-46/))
+      * ICS 33: Intermediate Programming ([W20](https://ics.uci.edu/~pattis/ICS-33), [F20](https://ics.uci.edu/~pattis/ICS-33), [W21](https://ics.uci.edu/~pattis/ICS-33), [S21](https://ics.uci.edu/~pattis/ICS-33))
+      * CS 143A: Principles of Operating Systems ([S20](https://ics.uci.edu/~ics143))
+
+  - role: Undergraduate Learning Assistant
+    org: Dept. of Mathematics, University of California, Irvine
+    org_url: https://www.math.uci.edu/
+    logo: org-uci
+    start: "2018-09-24"
+    end: "2019-06-14"
+    summary: |-
+      Part of the [Certified Learning Assistants Program (CLAP)](https://dtei.uci.edu/opportunities/faculty/learning-assistants/certified-learning-assistants-program/), which employs undergraduate peer educators - *Learning Assistants (LAs)* - to work with students in the classroom setting to support and facilitate active learning in courses.
+
+      Course(s):
+
+      * Math 1B: Pre-Calculus II (F18, W19)
+      * Math 2B: Single-Variable Calculus II (S19)
+
+  - role: Undergraduate Learning Assistant
+    org: Dept. of Physics and Astronomy, University of California, Irvine
+    org_url: https://www.physics.uci.edu/
+    logo: org-uci
+    start: "2017-09-25"
+    end: "2019-06-14"
+    summary: |-
+      Part of the [Certified Learning Assistants Program (CLAP)](https://dtei.uci.edu/opportunities/faculty/learning-assistants/certified-learning-assistants-program/), which employs undergraduate peer educators - *Learning Assistants (LAs)* - to work with students in the classroom setting to support and facilitate active learning in courses.
+
+      Course(s):
+
+      * Physics 7LC: Classical Physics Lab (F17, W18, S18, F18, W19, S19)
+
+  - role: Undergraduate Reader
+    org: Dept. of Computer Science, University of California, Irvine
+    org_url: https://cs.ics.uci.edu
+    logo: org-uci
+    start: "2017-09-25"
+    end: "2018-12-14"
+    summary: |-
+      Course(s):
+      * ICS 46: Data Structures Implementation and Analysis ([F17](https://ics.uci.edu/~pattis/ICS-46/), W18, [F18](https://ics.uci.edu/~pattis/ICS-46/))

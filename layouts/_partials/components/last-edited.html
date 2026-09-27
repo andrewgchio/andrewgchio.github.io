@@ -1,0 +1,7 @@
+{{/* Local override: suppress the "Last updated on ..." line on publication
+     pages — a paper's meaningful date is its publication date, already shown
+     in the header, and a site rebuild date is misleading next to it.
+     Same for projects. Every other section keeps the stock behaviour. */}}
+{{ if not (in (slice "publications" "projects") .Type) }}
+  {{ partial "components/last-edited-default.html" . }}
+{{ end }}

@@ -1,0 +1,31 @@
+{{/* Local override of the module's page_footer.
+
+     On publication and project pages the trailing furniture is noise: the
+     author card repeats the byline already at the top, and tags / "next in
+     series" / related pull attention away from the work itself. Everything
+     else on the site keeps the stock footer.
+
+     Removed for publications and projects: tags, author card, next-in-series,
+     related.
+     ("Last updated" lives in components/last-edited.html, overridden too.) */}}
+
+{{ $bare := in (slice "publications" "projects") .Type }}
+
+<div class="max-w-prose print:hidden">
+  {{/* Moved to TOC sidebar */}}
+  {{/* partial "page_edit" . */}}
+
+  {{ if not $bare }}
+    {{ partial "tags" . }}
+  {{ end }}
+
+  {{ partial "components/page_sharer" . }}
+
+  {{ if not $bare }}
+    {{ partial "page_author" . }}
+    {{ partial "components/next-in-series" . }}
+    {{ partial "page_related" . }}
+  {{ end }}
+
+  {{ partial "comments" . }}
+</div>

@@ -1,0 +1,648 @@
+/* ==========================================================================
+   Site customisations.
+
+   Loaded by the theme AFTER the compiled Tailwind bundle (see the
+   `assets/css/custom.css` hook in the blox module's site_head.html), so plain
+   declarations here win over the theme's own rules at equal specificity.
+
+   This file is NOT processed by Tailwind — use plain CSS, not `@apply`.
+   Dark mode is class-based in this theme, so `.dark <selector>` is the
+   correct way to target it.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. Publication titles in citation lists read as links.
+
+   The citation view renders the title as a bare <a> that is a *direct* child
+   of .pub-list-item, while author links live inside .article-metadata and the
+   attachment buttons live inside their own wrapper. Using the child combinator
+   therefore colours the title only, and leaves the rest alone.
+   -------------------------------------------------------------------------- */
+.pub-list-item.view-citation > a {
+  color: var(--color-primary-500);
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.pub-list-item.view-citation > a:hover,
+.pub-list-item.view-citation > a:focus-visible {
+  color: var(--color-primary-600);
+  text-decoration: underline;
+}
+
+.dark .pub-list-item.view-citation > a {
+  color: var(--color-primary-300);
+}
+
+.dark .pub-list-item.view-citation > a:hover,
+.dark .pub-list-item.view-citation > a:focus-visible {
+  color: var(--color-primary-200);
+}
+
+/* --------------------------------------------------------------------------
+   2. Boxed attachment buttons (PDF, Code, Slides, Cite, DOI, ...).
+
+   The theme renders these as plain coloured text. Boxing them makes the set
+   read as a row of buttons. `border-color: currentColor` inherits whatever
+   link colour the theme has already set for light/dark, so the outline tracks
+   the theme without duplicating the colour rules.
+
+   The Cite control is a <button> rather than an <a>; Tailwind's preflight
+   already resets its font and background, so nothing extra is needed here.
+   Deliberately NOT setting `font`/`font-size` — that would override the
+   theme's text-xs / text-sm on the small and large variants.
+   -------------------------------------------------------------------------- */
+.hb-attachment-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+
+  border: 1px solid currentColor;
+  border-radius: 0.375rem;
+  line-height: 1.25;
+
+  /* The theme ships mr-4 (1rem); combined with the list wrapper's space-x-3
+     that leaves too much air between boxes. */
+  margin-right: 0.5rem;
+  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+
+  /* One step lighter than the theme default, matching the title links. */
+  color: var(--color-primary-500);
+}
+
+.dark .hb-attachment-link {
+  color: var(--color-primary-300);
+}
+
+/* Size variants — these also override the theme's `p-0` on both classes. */
+.hb-attachment-link.hb-attachment-link-small {
+  padding: 0.2rem 0.55rem;
+}
+
+.hb-attachment-link.hb-attachment-link-large {
+  padding: 0.3rem 0.7rem;
+}
+
+/* Filled on hover rather than underlined — an underline reads badly in a box. */
+.hb-attachment-link:hover,
+.hb-attachment-link:focus-visible {
+  background-color: var(--color-primary-500);
+  border-color: var(--color-primary-500);
+  color: #fff;
+  text-decoration: none;
+}
+
+.dark .hb-attachment-link:hover,
+.dark .hb-attachment-link:focus-visible {
+  background-color: var(--color-primary-300);
+  border-color: var(--color-primary-300);
+  color: var(--color-gray-900, #111827);
+}
+
+/* --------------------------------------------------------------------------
+   3. Publications filter bar (see layouts/publications/list.html).
+
+   Colours are pulled from the theme's own gray/primary custom properties so
+   the bar tracks the active palette in both light and dark mode.
+   -------------------------------------------------------------------------- */
+.pub-filter {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1rem;
+  border: 1px solid var(--color-gray-200, #e5e7eb);
+  border-radius: 0.5rem;
+  background-color: var(--color-gray-50, #f9fafb);
+}
+
+.dark .pub-filter {
+  border-color: var(--color-gray-800, #1f2937);
+  background-color: rgb(255 255 255 / 0.03);
+}
+
+.pub-filter__row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.pub-filter__field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 8.5rem;
+  flex: 0 1 auto;
+}
+
+/* The text box takes the leftover width, the selects stay their natural size. */
+.pub-filter__field--grow {
+  flex: 1 1 14rem;
+}
+
+.pub-filter__label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-gray-500, #6b7280);
+}
+
+.dark .pub-filter__label {
+  color: var(--color-gray-400, #9ca3af);
+}
+
+.pub-filter input[type='search'],
+.pub-filter select {
+  width: 100%;
+  padding: 0.4rem 0.6rem;
+  border: 1px solid var(--color-gray-300, #d1d5db);
+  border-radius: 0.375rem;
+  background-color: var(--color-gray-50, #fff);
+  color: inherit;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.dark .pub-filter input[type='search'],
+.dark .pub-filter select {
+  border-color: var(--color-gray-700, #374151);
+  background-color: rgb(255 255 255 / 0.05);
+}
+
+.pub-filter input[type='search']:focus,
+.pub-filter select:focus {
+  outline: 2px solid var(--color-primary-500);
+  outline-offset: 1px;
+  border-color: transparent;
+}
+
+.pub-filter__status {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.8rem;
+  color: var(--color-gray-500, #6b7280);
+}
+
+.dark .pub-filter__status {
+  color: var(--color-gray-400, #9ca3af);
+}
+
+.pub-filter__clear {
+  border: 0;
+  background: none;
+  padding: 0;
+  font: inherit;
+  color: var(--color-primary-500);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.dark .pub-filter__clear {
+  color: var(--color-primary-300);
+}
+
+.pub-filter-empty {
+  margin-top: 1.5rem;
+  text-align: center;
+  font-style: italic;
+  color: var(--color-gray-500, #6b7280);
+}
+
+/* `hidden` must win over the display values set above. */
+.pub-filter[hidden],
+.pub-filter-item[hidden],
+.pub-filter-empty[hidden],
+.pub-filter__clear[hidden] {
+  display: none !important;
+}
+
+/* --------------------------------------------------------------------------
+   4. Award badges render bold.
+
+   The theme uses font-medium (inline variant) / font-semibold (row, pill,
+   card-corner). Two selectors are needed because only the row/pill/card
+   variants carry a data attribute; the inline one used in citation lists is
+   reached structurally.
+
+   If the theme ever renames that utility class the badge simply falls back to
+   the theme weight — a cosmetic difference, not a breakage.
+   -------------------------------------------------------------------------- */
+[data-pagefind-filter^='award:'] {
+  font-weight: 700;
+}
+
+.pub-list-item.view-citation > span.ml-1 > span {
+  font-weight: 700;
+}
+
+/* --------------------------------------------------------------------------
+   5. Funder headings on the Projects page
+   (layouts/partials/hbx/blocks/projects-by-funding/block.html).
+   -------------------------------------------------------------------------- */
+.pbf-funder {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 0;
+  padding-bottom: 0.4rem;
+  border-bottom: 1px solid var(--color-gray-200, #e5e7eb);
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--color-gray-900, #111827);
+}
+
+.dark .pbf-funder {
+  border-bottom-color: var(--color-gray-800, #1f2937);
+  color: var(--color-gray-100, #f3f4f6);
+}
+
+.pbf-funder a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.pbf-funder a:hover {
+  color: var(--color-primary-500);
+  text-decoration: underline;
+}
+
+/* Project count sits next to the funder name as a quiet pill. */
+.pbf-funder__count {
+  flex-shrink: 0;
+  min-width: 1.5rem;
+  padding: 0.05rem 0.45rem;
+  border-radius: 999px;
+  background-color: var(--color-gray-200, #e5e7eb);
+  color: var(--color-gray-600, #4b5563);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.dark .pbf-funder__count {
+  background-color: rgb(255 255 255 / 0.1);
+  color: var(--color-gray-300, #d1d5db);
+}
+
+.pbf-funder__grants {
+  margin: 0.35rem 0 0;
+  font-size: 0.8rem;
+  color: var(--color-gray-500, #6b7280);
+}
+
+.dark .pbf-funder__grants {
+  color: var(--color-gray-400, #9ca3af);
+}
+
+/* --------------------------------------------------------------------------
+   6. "See all publications" link in the my-publications block's left column.
+   -------------------------------------------------------------------------- */
+.mp-archive-link {
+  display: inline-block;
+  margin-top: 1.25rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-primary-500);
+  text-decoration: none;
+}
+
+.dark .mp-archive-link {
+  color: var(--color-primary-300);
+}
+
+.mp-archive-link:hover {
+  text-decoration: underline;
+}
+
+/* --------------------------------------------------------------------------
+   7. "In the News" list (layouts/partials/my/news-items.html).
+
+   One line per item: headline, then the date in a lighter grey.
+   -------------------------------------------------------------------------- */
+.mn-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.mn-item {
+  line-height: 1.5;
+}
+
+.mn-headline {
+  font-weight: 600;
+  color: var(--color-gray-900, #111827);
+  text-decoration: none;
+}
+
+.dark .mn-headline {
+  color: var(--color-gray-100, #f3f4f6);
+}
+
+.mn-headline:hover {
+  color: var(--color-primary-500);
+  text-decoration: underline;
+}
+
+.dark .mn-headline:hover {
+  color: var(--color-primary-300);
+}
+
+/* Date sits inline after the headline, deliberately quieter. */
+.mn-when {
+  color: var(--color-gray-500, #6b7280);
+  font-weight: 400;
+  white-space: nowrap;
+}
+
+.dark .mn-when {
+  color: var(--color-gray-400, #9ca3af);
+}
+
+
+/* --------------------------------------------------------------------------
+   8. Projects tag filter (layouts/partials/hbx/blocks/my-projects/).
+   -------------------------------------------------------------------------- */
+.pf-filter {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.pf-filter__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.pf-chip {
+  padding: 0.25rem 0.75rem;
+  border: 1px solid var(--color-gray-300, #d1d5db);
+  border-radius: 999px;
+  background-color: transparent;
+  color: var(--color-gray-700, #374151);
+  font-size: 0.8rem;
+  font-weight: 600;
+  line-height: 1.4;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.dark .pf-chip {
+  border-color: var(--color-gray-700, #374151);
+  color: var(--color-gray-300, #d1d5db);
+}
+
+.pf-chip:hover {
+  border-color: var(--color-primary-500);
+  color: var(--color-primary-500);
+}
+
+/* Selected state is driven by aria-pressed, so the styling and the
+   accessibility state can never disagree. */
+.pf-chip[aria-pressed='true'] {
+  background-color: var(--color-primary-500);
+  border-color: var(--color-primary-500);
+  color: #fff;
+}
+
+.dark .pf-chip[aria-pressed='true'] {
+  background-color: var(--color-primary-300);
+  border-color: var(--color-primary-300);
+  color: var(--color-gray-900, #111827);
+}
+
+.pf-filter__status {
+  font-size: 0.8rem;
+  color: var(--color-gray-500, #6b7280);
+}
+
+.dark .pf-filter__status {
+  color: var(--color-gray-400, #9ca3af);
+}
+
+.pf-empty {
+  margin-top: 2rem;
+  text-align: center;
+  font-style: italic;
+  color: var(--color-gray-500, #6b7280);
+}
+
+.pf-filter[hidden],
+.pf-item[hidden],
+.pf-empty[hidden],
+[data-pf-group][hidden] {
+  display: none !important;
+}
+
+/* --------------------------------------------------------------------------
+   9. Publication detail page: give the abstract a full-width column.
+
+   single.html renders the metadata as a [200px auto] grid inside max-w-prose,
+   which leaves the abstract in a column roughly half the reading measure. The
+   abstract (the first label/value pair) is spanned across both tracks so it
+   gets the full width; the short rows below it keep the label/value alignment.
+
+   The selector targets Tailwind's arbitrary-value class, which is unique to
+   this grid. If the theme restyles that block the abstract simply reverts to
+   the two-column form — a cosmetic difference, not a breakage.
+   -------------------------------------------------------------------------- */
+@media (min-width: 768px) {
+  .md\:grid-cols-\[200px_auto\] > :nth-child(1),
+  .md\:grid-cols-\[200px_auto\] > :nth-child(2) {
+    grid-column: 1 / -1;
+  }
+
+  /* Pull the gap in between the "Abstract" heading and its text. */
+  .md\:grid-cols-\[200px_auto\] > :nth-child(2) {
+    margin-top: -0.5rem;
+  }
+}
+
+/* The metadata block is capped at max-w-prose; widen it a little so the
+   full-width abstract reads as a proper column rather than a narrow strip. */
+.md\:grid-cols-\[200px_auto\] {
+  max-width: 60rem;
+}
+
+/* --------------------------------------------------------------------------
+   10. Contact details (layouts/partials/hbx/blocks/my-contact/).
+   -------------------------------------------------------------------------- */
+.mc-details {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.mc-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.2rem;
+}
+
+@media (min-width: 640px) {
+  .mc-row {
+    grid-template-columns: 8rem 1fr;
+    gap: 1.5rem;
+  }
+}
+
+.mc-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-gray-500, #6b7280);
+  padding-top: 0.3rem;
+}
+
+.dark .mc-label {
+  color: var(--color-gray-400, #9ca3af);
+}
+
+.mc-value {
+  color: var(--color-gray-800, #1f2937);
+  font-size: 1.125rem;
+  line-height: 1.65;
+}
+
+.dark .mc-value {
+  color: var(--color-gray-200, #e5e7eb);
+}
+
+.mc-value a {
+  color: var(--color-primary-500);
+  text-decoration: none;
+}
+
+.dark .mc-value a {
+  color: var(--color-primary-300);
+}
+
+.mc-value a:hover {
+  text-decoration: underline;
+}
+
+
+
+
+
+
+/* --------------------------------------------------------------------------
+   12. Publication byline: drop the author avatar.
+
+   single.html renders a 16px round avatar beside each author whose profile has
+   one (assets/media/authors/<slug>.*). There's no front-matter switch for it,
+   so it is hidden here. The class combination is specific to that byline
+   avatar — card thumbnails use `rounded-full object-cover` at 24px, and the
+   biography block's portrait is larger still, so neither is affected.
+
+   (The byline's date and "N min read" are switched off in front matter
+   instead — see the cascade in content/publications/_index.md.)
+   -------------------------------------------------------------------------- */
+img.inline-block.h-4.w-4.rounded-full.border-current {
+  display: none;
+}
+
+/* --------------------------------------------------------------------------
+   13. Publication status pill ("Accepted for publication", "In press", ...).
+
+   Set via `status:` in a publication's front matter and rendered by the
+   citation view override. Deliberately distinct from the amber award badge —
+   this is a state, not an accolade — and from the emerald peer-reviewed /
+   open-access pills the theme puts on the detail page.
+   -------------------------------------------------------------------------- */
+.pub-status {
+  display: inline-block;
+  margin-left: 0.4rem;
+  padding: 0.1rem 0.5rem;
+  border-radius: 999px;
+  background-color: var(--color-gray-200, #e5e7eb);
+  color: var(--color-gray-700, #374151);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  vertical-align: 0.08em;
+}
+
+.dark .pub-status {
+  background-color: rgb(255 255 255 / 0.1);
+  color: var(--color-gray-300, #d1d5db);
+}
+
+/* --------------------------------------------------------------------------
+   14. Expandable detail on experience entries
+   (layouts/partials/hbx/blocks/my-resume-experience/block.html).
+
+   Native <details>/<summary>, so it works without JS and is keyboard
+   operable. Only entries with a `details:` field in data/authors/me.yaml
+   render a toggle.
+   -------------------------------------------------------------------------- */
+.rx-details {
+  margin-top: 0.75rem;
+}
+
+.rx-summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.15rem 0;
+  color: var(--color-primary-500);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  list-style: none;
+  width: fit-content;
+}
+
+.dark .rx-summary {
+  color: var(--color-primary-300);
+}
+
+.rx-summary:hover .rx-summary__label {
+  text-decoration: underline;
+}
+
+/* Hide the default disclosure triangle in both engines; we draw our own. */
+.rx-summary::-webkit-details-marker {
+  display: none;
+}
+
+.rx-summary::marker {
+  content: "";
+}
+
+.rx-summary__chevron {
+  width: 1rem;
+  height: 1rem;
+  flex-shrink: 0;
+  transition: transform 0.18s ease;
+}
+
+.rx-details[open] .rx-summary__chevron {
+  transform: rotate(180deg);
+}
+
+.rx-summary:focus-visible {
+  outline: 2px solid var(--color-primary-500);
+  outline-offset: 2px;
+  border-radius: 0.25rem;
+}
+
+.rx-details__body {
+  margin-top: 0.4rem;
+  padding-left: 0.85rem;
+  border-left: 2px solid var(--color-gray-200, #e5e7eb);
+}
+
+.dark .rx-details__body {
+  border-left-color: var(--color-gray-700, #374151);
+}

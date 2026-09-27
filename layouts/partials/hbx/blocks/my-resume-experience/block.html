@@ -1,0 +1,399 @@
+{{/* Hugo Blox: Experience — two-column variant */}}
+{{/* Project override of the upstream `resume-experience` block. */}}
+{{/* Renders a single timeline from a configurable profile key (default `experience`). */}}
+{{/* Education is intentionally NOT rendered here — the biography block handles it. */}}
+{{/* Documentation: https://hugoblox.com/blocks/ */}}
+{{/* License: https://github.com/HugoBlox/kit/blob/main/LICENSE.md */}}
+
+{{/* Initialise */}}
+{{ $page := .wcPage }}
+{{ $block := .wcBlock }}
+{{ $content := $block.content }}
+{{ if not (reflect.IsMap $content) }}{{ $content = dict }}{{ end }}
+{{ $design := $block.design }}
+{{ if not (reflect.IsMap $design) }}{{ $design = dict }}{{ end }}
+
+{{ $text := "" }}
+{{ $text_raw := index $content "text" }}
+{{ if $text_raw }}{{ $text = strings.TrimSpace (printf "%v" $text_raw) }}{{ end }}
+{{ if $text }}{{ $text = $text | emojify | $page.RenderString }}{{ end }}
+
+{{ $username := "me" }}
+{{ $username_raw := index $content "username" }}
+{{ if eq (printf "%T" $username_raw) "string" }}
+	{{ $username = strings.TrimSpace $username_raw }}
+{{ end }}
+{{ $profile := partial "functions/get_author_profile" $username }}
+
+{{ $date_format := "Jan 2006" }}
+{{ $date_format_raw := index $design "date_format" }}
+{{ if eq (printf "%T" $date_format_raw) "string" }}
+	{{ $date_format = strings.TrimSpace $date_format_raw | default "Jan 2006" }}
+{{ end }}
+
+{{/* Logo width. The tile stretches vertically to match the role/group/org
+     block, so this sets the horizontal size only. */}}
+{{ $logo_size := "md" }}
+{{ $logo_size_raw := index $design "logo_size" }}
+{{ if eq (printf "%T" $logo_size_raw) "string" }}
+	{{ $logo_size_raw = lower (strings.TrimSpace $logo_size_raw) }}
+	{{ if ne $logo_size_raw "" }}{{ $logo_size = $logo_size_raw }}{{ end }}
+{{ end }}
+{{ $logo_width := index (dict "sm" "w-14" "md" "w-20" "lg" "w-24" "xl" "w-28") $logo_size | default "w-20" }}
+
+{{/* Logo presentation: `plain` (default) renders the image directly on the card.
+     `tile` sits it on a white rounded tile, which helps when a dark-on-transparent
+     mark would otherwise disappear against the dark-mode card background. */}}
+{{ $logo_style := "plain" }}
+{{ $logo_style_raw := index $design "logo_style" }}
+{{ if eq (printf "%T" $logo_style_raw) "string" }}
+	{{ $logo_style_raw = lower (strings.TrimSpace $logo_style_raw) }}
+	{{ if ne $logo_style_raw "" }}{{ $logo_style = $logo_style_raw }}{{ end }}
+{{ end }}
+
+{{/* Which profile key holds this block's timeline, e.g. `experience`, `teaching`, `service`. */}}
+{{ $experience_key := "experience" }}
+{{ $experience_key_raw := index $content "key" }}
+{{ if eq (printf "%T" $experience_key_raw) "string" }}
+	{{ $experience_key_raw = strings.TrimSpace $experience_key_raw }}
+	{{ if ne $experience_key_raw "" }}{{ $experience_key = $experience_key_raw }}{{ end }}
+{{ end }}
+
+{{/* Heading: content.title, else derived from a non-default key, else the i18n default */}}
+{{ $heading := i18n "experience" | default "Experience" }}
+{{ if ne $experience_key "experience" }}
+	{{ $heading = $experience_key | humanize | title }}
+{{ end }}
+{{ $heading_raw := index $content "title" }}
+{{ if eq (printf "%T" $heading_raw) "string" }}
+	{{ $heading_raw = strings.TrimSpace $heading_raw }}
+	{{ if ne $heading_raw "" }}{{ $heading = $heading_raw }}{{ end }}
+{{ end }}
+
+{{/* `get_author_profile` returns a NORMALIZED dict with a fixed key set
+     (experience, education, awards, skills, languages, interests, ...).
+     Custom keys such as `teaching` or `service` are dropped by that
+     normalization, so fall back to the raw author data for them. */}}
+{{ $experience_raw := index $profile $experience_key }}
+{{ if not $experience_raw }}
+	{{ $authors_data := partialCached "functions/get_authors_data" . site.Language.Lang }}
+	{{ $author_data := index $authors_data (urlize $username) }}
+	{{ if reflect.IsMap $author_data }}
+		{{ $experience_raw = index $author_data $experience_key }}
+	{{ end }}
+{{ end }}
+{{ if and (not $experience_raw) (eq $experience_key "experience") }}
+	{{/* Back-compat: the JSON Resume schema calls this `work` */}}
+	{{ $experience_raw = $profile.work }}
+{{ end }}
+{{ if and (not $experience_raw) (ne $experience_key "experience") }}
+	{{ warnf "resume-experience: no `%s` list found for author %q — add a top-level `%s:` key to data/authors/%s.yaml" $experience_key $username $experience_key $username }}
+{{ end }}
+
+{{ $experience_iter := slice }}
+{{ if reflect.IsSlice $experience_raw }}
+	{{ $experience_iter = $experience_raw }}
+{{ else if and $experience_raw (reflect.IsMap $experience_raw) }}
+	{{ $experience_iter = slice $experience_raw }}
+{{ end }}
+
+{{ $experience := slice }}
+{{ if gt (len $experience_iter) 0 }}
+	{{ range $experience_iter }}
+		{{ if reflect.IsMap . }}
+			{{ $role := "" }}
+			{{ $org := "" }}
+			{{ $org_url := "" }}
+			{{ $group := "" }}
+			{{ $logo := "" }}
+			{{ $start := "" }}
+			{{ $end := "" }}
+			{{ $summary := "" }}
+			{{ $details := "" }}
+			{{ $icon := "" }}
+			{{ $tags := slice }}
+			{{ $button_url := "" }}
+			{{ $button_text := "" }}
+			{{ $button_icon := "" }}
+
+			{{ with index . "role" }}{{ $role = strings.TrimSpace (printf "%v" .) }}{{ end }}
+			{{ if not $role }}{{ with index . "position" }}{{ $role = strings.TrimSpace (printf "%v" .) }}{{ end }}{{ end }}
+			{{ with index . "org" }}{{ $org = strings.TrimSpace (printf "%v" .) }}{{ end }}
+			{{ if not $org }}{{ with index . "company_name" }}{{ $org = strings.TrimSpace (printf "%v" .) }}{{ end }}{{ end }}
+			{{ with index . "org_url" }}{{ $org_url = strings.TrimSpace (printf "%v" .) }}{{ end }}
+			{{ if not $org_url }}{{ with index . "company_url" }}{{ $org_url = strings.TrimSpace (printf "%v" .) }}{{ end }}{{ end }}
+			{{ with index . "group" }}{{ $group = strings.TrimSpace (printf "%v" .) }}{{ end }}
+			{{ with index . "logo" }}{{ $logo = strings.TrimSpace (printf "%v" .) }}{{ end }}
+			{{ if not $logo }}{{ with index . "company_logo" }}{{ $logo = strings.TrimSpace (printf "%v" .) }}{{ end }}{{ end }}
+			{{ with index . "start" }}{{ $start = strings.TrimSpace (printf "%v" .) }}{{ end }}
+			{{ if not $start }}{{ with index . "date_start" }}{{ $start = strings.TrimSpace (printf "%v" .) }}{{ end }}{{ end }}
+			{{ with index . "end" }}{{ $end = strings.TrimSpace (printf "%v" .) }}{{ end }}
+			{{ if not $end }}{{ with index . "date_end" }}{{ $end = strings.TrimSpace (printf "%v" .) }}{{ end }}{{ end }}
+			{{ with index . "summary" }}{{ $summary = strings.TrimSpace (printf "%v" .) }}{{ end }}
+			{{/* Local addition: longer text revealed by the entry's disclosure. */}}
+			{{ with index . "details" }}{{ $details = strings.TrimSpace (printf "%v" .) }}{{ end }}
+			{{ with index . "icon" }}{{ $icon = strings.TrimSpace (printf "%v" .) }}{{ end }}
+
+			{{ $tags_raw := index . "tags" }}
+			{{ if reflect.IsSlice $tags_raw }}
+				{{ range $tags_raw }}
+					{{ $tag := strings.TrimSpace (printf "%v" .) }}
+					{{ if $tag }}{{ $tags = $tags | append $tag }}{{ end }}
+				{{ end }}
+			{{ else if eq (printf "%T" $tags_raw) "string" }}
+				{{ $tag_string := strings.TrimSpace $tags_raw }}
+				{{ if $tag_string }}
+					{{ if strings.Contains $tag_string "," }}
+						{{ range (split $tag_string ",") }}
+							{{ $tag := strings.TrimSpace . }}
+							{{ if $tag }}{{ $tags = $tags | append $tag }}{{ end }}
+						{{ end }}
+					{{ else }}
+						{{ $tags = slice $tag_string }}
+					{{ end }}
+				{{ end }}
+			{{ end }}
+
+			{{ $button_raw := index . "button" }}
+			{{ if reflect.IsMap $button_raw }}
+				{{ with index $button_raw "url" }}{{ $button_url = strings.TrimSpace (printf "%v" .) }}{{ end }}
+				{{ with index $button_raw "text" }}{{ $button_text = strings.TrimSpace (printf "%v" .) }}{{ end }}
+				{{ with index $button_raw "icon" }}{{ $button_icon = strings.TrimSpace (printf "%v" .) }}{{ end }}
+			{{ end }}
+
+			{{ if or $role $org }}
+				{{ $experience = $experience | append (dict "role" $role "org" $org "org_url" $org_url "group" $group "logo" $logo "start" $start "end" $end "summary" $summary "details" $details "icon" $icon "tags" $tags "button" (dict "url" $button_url "text" $button_text "icon" $button_icon)) }}
+			{{ end }}
+		{{ end }}
+	{{ end }}
+{{ end }}
+
+{{ if gt (len $experience) 0 }}
+	<div class="resume-experience py-8 px-4 sm:py-12 md:py-16">
+		<div class="max-w-7xl mx-auto">
+			<div class="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-12 items-start">
+
+				{{/* Left column: section heading */}}
+				<div class="md:col-span-4 md:sticky md:top-24">
+					<h2 class="text-3xl sm:text-4xl lg:text-5xl font-light text-gray-800 dark:text-gray-100 tracking-tight">
+						{{ $heading }}
+					</h2>
+					{{ with $text }}
+						<div class="mt-4 prose dark:prose-invert max-w-none text-gray-600 dark:text-gray-400 prose-p:mt-2 prose-p:mb-1 prose-ul:mt-0 prose-ul:mb-2 prose-ol:mt-0 prose-ol:mb-2 prose-li:my-0.5 prose-li:leading-snug [&>*:first-child]:mt-0 [&>*:last-child]:mb-0">
+							{{ . }}
+						</div>
+					{{ end }}
+				</div>
+
+				{{/* Right column: timeline */}}
+				<div class="md:col-span-8">
+					<div class="relative">
+						{{/* Gradient timeline line */}}
+						<div class="absolute left-4 sm:left-6 top-0 bottom-0 w-0.5 bg-gradient-to-b from-primary-500 via-primary-400 to-primary-600/50"></div>
+
+						{{/* Experience items */}}
+						<div class="space-y-8">
+							{{ range $idx, $item := $experience }}
+								{{/* Card wrapper */}}
+								<div class="group relative pl-12 sm:pl-16">
+
+									{{/* Timeline marker */}}
+									<div class="absolute left-0 sm:left-2 top-6 flex items-center justify-center">
+										{{/* Glowing dot */}}
+										<div class="relative">
+											<div class="absolute inset-0 w-8 h-8 bg-primary-500/30 rounded-full blur-md group-hover:bg-primary-500/50 transition-all duration-300"></div>
+											<div class="relative w-8 h-8 bg-white dark:bg-gray-900 border-2 border-primary-500 rounded-full flex items-center justify-center group-hover:border-primary-400 group-hover:scale-110 transition-all duration-300">
+												{{ $icon := index $item "icon" }}
+												{{ if $icon }}
+													{{ partial "functions/get_icon" (dict "name" $icon "attributes" "class='w-4 h-4 text-primary-600 dark:text-primary-400'") }}
+												{{ else }}
+													<svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 256 256" class="w-4 h-4 text-primary-600 dark:text-primary-400"><path d="M216,56H176V48a24,24,0,0,0-24-24H104A24,24,0,0,0,80,48v8H40A16,16,0,0,0,24,72V200a16,16,0,0,0,16,16H216a16,16,0,0,0,16-16V72A16,16,0,0,0,216,56ZM96,48a8,8,0,0,1,8-8h48a8,8,0,0,1,8,8v8H96ZM216,72v41.61A184,184,0,0,1,128,136a184.07,184.07,0,0,1-88-22.38V72Zm0,128H40V131.64A200.19,200.19,0,0,0,128,152a200.25,200.25,0,0,0,88-20.37V200ZM104,112a8,8,0,0,1,8-8h32a8,8,0,0,1,0,16H112A8,8,0,0,1,104,112Z"></path></svg>
+												{{ end }}
+											</div>
+										</div>
+									</div>
+
+									{{/* Content card */}}
+									<div class="relative bg-white dark:bg-white/[0.02] backdrop-blur-sm rounded-xl border border-gray-200 dark:border-white/[0.06] p-6 hover:bg-gray-50 dark:hover:bg-white/[0.04] hover:border-primary-300 dark:hover:border-primary-500/30 transition-all duration-300 group-hover:translate-x-1 shadow-sm dark:shadow-none">
+
+										{{/* Header row */}}
+										<div class="flex items-stretch gap-4 mb-3">
+											{{/* Logo: bare name -> assets/media/icons|logos/<name>.*, else a path or URL */}}
+											{{ $logo_res := false }}
+											{{ $logo_url := "" }}
+											{{ with index $item "logo" }}
+												{{ $name := . }}
+												{{ if or (hasPrefix $name "http://") (hasPrefix $name "https://") (strings.Contains $name "/") (ne (path.Ext $name) "") }}
+													{{ $resolved := partial "functions/resolve_image_resource" (dict "path" $name "Page" $page) }}
+													{{ with $resolved.resource }}{{ $logo_res = . }}{{ end }}
+													{{ with $resolved.fallback_url }}{{ $logo_url = . }}{{ end }}
+												{{ else }}
+													{{ range $pattern := slice "media/icons/%s.*" "media/logos/%s.*" "media/%s.*" }}
+														{{ if not $logo_res }}{{ $logo_res = resources.GetMatch (printf $pattern $name) }}{{ end }}
+													{{ end }}
+													{{ if not $logo_res }}
+														{{ warnf "resume-experience: logo %q not found — expected assets/media/icons/%s.svg (or .png/.jpg), assets/media/logos/, or assets/media/" $name $name }}
+													{{ end }}
+												{{ end }}
+											{{ end }}
+											{{ if or $logo_res $logo_url }}
+												{{ $logo_src := $logo_url }}
+												{{ with $logo_res }}
+													{{ $r := . }}
+													{{ if reflect.IsImageResourceProcessable $r }}{{ $r = $r.Fit "256x256" }}{{ end }}
+													{{ $logo_src = $r.RelPermalink }}
+												{{ end }}
+												<div class="shrink-0 self-stretch {{ $logo_width }} relative rounded-lg overflow-hidden{{ if eq $logo_style "tile" }} bg-white border border-gray-200 dark:border-white/10{{ end }}">
+													{{/* Absolutely positioned so the image never inflates the row: the box
+													     height comes solely from the adjacent role/group/org block. */}}
+													<div class="absolute inset-0 flex items-center justify-center{{ if eq $logo_style "tile" }} p-2{{ end }}">
+														<img src="{{ $logo_src | safeURL }}" alt="{{ index $item "org" }}" loading="lazy" decoding="async" class="max-w-full max-h-full object-contain" />
+													</div>
+												</div>
+											{{ end }}
+											<div class="min-w-0 flex-1">
+												{{/* Date badge */}}
+												<div class="mb-2 flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap sm:float-right sm:mb-1 sm:ml-4">
+													<svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+														<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+													</svg>
+													<time>
+														{{ $start := index $item "start" }}
+														{{ $end := index $item "end" }}
+														{{ if $start }}
+															{{ $parsed := try (time $start) }}
+															{{ if not $parsed.Err }}
+																{{ $parsed.Value | time.Format $date_format }} &ndash;
+															{{ else }}
+																{{ $start }} &ndash;
+															{{ end }}
+														{{ end }}
+														{{ if $end }}
+															{{ $parsed := try (time $end) }}
+															{{ if not $parsed.Err }}
+																{{ $parsed.Value | time.Format $date_format }}
+															{{ else }}
+																{{ $end }}
+															{{ end }}
+														{{ else }}
+															<span class="text-primary-600 dark:text-primary-400 font-medium">{{ i18n "present" | default "Present" }}</span>
+														{{ end }}
+													</time>
+												</div>
+												{{/* Role/Position */}}
+												<h3 class="text-xl font-bold text-gray-900 dark:text-white group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
+													{{ index $item "role" }}
+												</h3>
+												{{/* Sub-group / lab affiliation */}}
+												{{ with index $item "group" }}
+													<div class="text-sm text-gray-500 dark:text-gray-400 italic mt-1 break-words">
+														{{ . | markdownify }}
+													</div>
+												{{ end }}
+												{{/* Organization */}}
+												{{ $org := index $item "org" }}
+												{{ $org_url := index $item "org_url" }}
+												{{ with $org }}
+													<p class="text-primary-600 dark:text-primary-400 font-medium mt-1">
+														{{ if $org_url }}
+															{{ $org_link := $org_url }}
+															{{ $org_target := "" }}
+															{{ $org_scheme := (urls.Parse $org_link).Scheme }}
+															{{ if not $org_scheme }}
+																{{ if not (hasPrefix $org_link "#") }}
+																	{{ $org_link = $org_link | relLangURL }}
+																{{ end }}
+															{{ else if in (slice "http" "https") $org_scheme }}
+																{{ $org_target = "target=\"_blank\" rel=\"noopener\"" }}
+															{{ end }}
+															<a href="{{ $org_link | safeURL }}" {{ $org_target | safeHTMLAttr }} class="hover:underline">{{ . }}</a>
+														{{ else }}
+															{{ . }}
+														{{ end }}
+													</p>
+												{{ end }}
+											</div>
+										</div>
+
+										{{/* Description */}}
+										{{ with index $item "summary" }}
+											<div class="prose dark:prose-invert max-w-none text-gray-600 dark:text-gray-400 leading-relaxed prose-p:mt-2 prose-p:mb-1 prose-ul:mt-0 prose-ul:mb-2 prose-ol:mt-0 prose-ol:mb-2 prose-li:my-0.5 prose-li:leading-snug [&>*:first-child]:mt-0 [&>*:last-child]:mb-0">
+												{{ . | emojify | $page.RenderString }}
+											</div>
+										{{ end }}
+
+										{{/* Expandable detail.
+
+										     Native <details>/<summary> rather than Alpine: it is keyboard
+										     accessible and works with JS disabled, and this block is not
+										     otherwise a JS component. The header above is NOT the summary
+										     because it contains links (group, org) — nesting those inside
+										     <summary> makes a click ambiguous between navigating and
+										     toggling. Entries without a `details:` field render unchanged. */}}
+										{{ with index $item "details" }}
+											<details class="rx-details">
+												<summary class="rx-summary">
+													<span class="rx-summary__label">{{ i18n "details" | default "Details" }}</span>
+													<svg class="rx-summary__chevron" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+														<path d="M6 8l4 4 4-4" stroke-linecap="round" stroke-linejoin="round" />
+													</svg>
+												</summary>
+												<div class="rx-details__body prose dark:prose-invert max-w-none text-gray-600 dark:text-gray-400 leading-relaxed prose-p:mt-2 prose-p:mb-1 [&>*:first-child]:mt-0 [&>*:last-child]:mb-0">
+													{{ . | emojify | $page.RenderString }}
+												</div>
+											</details>
+										{{ end }}
+
+										{{/* Tags/Skills */}}
+										{{ with index $item "tags" }}
+											<div class="flex flex-wrap gap-2 mt-4">
+												{{ range . }}
+													<span class="px-2.5 py-1 text-xs font-medium rounded-full bg-primary-100 dark:bg-primary-500/10 text-primary-700 dark:text-primary-300 border border-primary-200 dark:border-primary-500/20">
+														{{ . }}
+													</span>
+												{{ end }}
+											</div>
+										{{ end }}
+
+										{{/* Action button */}}
+										{{ $button := index $item "button" }}
+										{{ if reflect.IsMap $button }}
+											{{ $button_url := index $button "url" }}
+											{{ $button_text := index $button "text" | default "Learn more" }}
+											{{ $button_icon := index $button "icon" }}
+											{{ if $button_url }}
+												{{ $button_link := $button_url }}
+												{{ $button_target := "" }}
+												{{ $button_scheme := (urls.Parse $button_link).Scheme }}
+												{{ if not $button_scheme }}
+													{{ if not (hasPrefix $button_link "#") }}
+														{{ $button_link = $button_link | relLangURL }}
+													{{ end }}
+													{{ if eq (path.Ext $button_link) ".pdf" }}{{ $button_target = "target=\"_blank\" rel=\"noopener\"" }}{{ end }}
+												{{ else if in (slice "http" "https") $button_scheme }}
+													{{ $button_target = "target=\"_blank\" rel=\"noopener\"" }}
+												{{ end }}
+												<div class="mt-4 pt-4 border-t border-gray-100 dark:border-white/5">
+													<a href="{{ $button_link | safeURL }}" {{ $button_target | safeHTMLAttr }} class="inline-flex items-center gap-2 text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
+														{{ with $button_icon }}
+															{{ partial "functions/get_icon" (dict "name" . "attributes" "class='w-4 h-4'") }}
+														{{ end }}
+														{{ $button_text }}
+														<svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+															<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+														</svg>
+													</a>
+												</div>
+											{{ end }}
+										{{ end }}
+									</div>
+								</div>
+							{{ end }}
+						</div>
+					</div>
+				</div>
+
+			</div>
+		</div>
+	</div>
+{{ end }}

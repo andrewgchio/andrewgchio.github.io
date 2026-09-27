@@ -1,0 +1,9 @@
+{
+  "id": "my-contact",
+  "name": "My Contact",
+  "version": "1.0.0",
+  "license": "MIT",
+  "category": "contact",
+  "description": "Contact details in the site's two-column layout: heading left, details right.",
+  "author": "Andrew Chio"
+}

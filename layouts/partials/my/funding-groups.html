@@ -1,0 +1,46 @@
+{{/* Resolve a publication's own `funding:` front matter to the groups used by
+     the Project dropdown on the publications list.
+
+     Uses HugoBlox's standard schema, which the publication page also renders
+     as its "Funding" section:
+
+       funding:
+         - funder: "NSF SWADE"
+           grant: "CNS-1952247"         # optional, not used for grouping
+           url: "https://sites.uci.edu/swade"  # optional
+
+     Keep to this list-of-maps form: the page's Funding section reads
+     `.funder` from each entry, so bare strings would break the build there.
+
+     Each distinct `funder` is one dropdown option, so publications funded by
+     the same project must spell the funder identically.
+
+     Input: the publication page.
+     Output: slice of dicts {key, label}, deduplicated. `key` is anchorized so
+     it survives the space-separated data-projects attribute. */}}
+
+{{ $labels := slice }}
+{{ $raw := .Params.funding }}
+{{ if reflect.IsSlice $raw }}
+  {{ range $raw }}
+    {{ if reflect.IsMap . }}
+      {{ with (index . "funder") }}{{ $labels = $labels | append (strings.TrimSpace (printf "%v" .)) }}{{ end }}
+    {{ else }}
+      {{ $labels = $labels | append (strings.TrimSpace (printf "%v" .)) }}
+    {{ end }}
+  {{ end }}
+{{ else if eq (printf "%T" $raw) "string" }}
+  {{ with strings.TrimSpace $raw }}{{ $labels = $labels | append . }}{{ end }}
+{{ end }}
+
+{{ $groups := slice }}
+{{ $seen := slice }}
+{{ range $labels }}
+  {{ $key := anchorize . }}
+  {{ if and $key (not (in $seen $key)) }}
+    {{ $seen = $seen | append $key }}
+    {{ $groups = $groups | append (dict "key" $key "label" .) }}
+  {{ end }}
+{{ end }}
+
+{{ return $groups }}

@@ -1,0 +1,16 @@
+{
+  "id": "my-projects",
+  "name": "My Projects",
+  "version": "1.0.0",
+  "license": "MIT",
+  "category": "collection",
+  "tags": [
+    "projects",
+    "funding",
+    "grants",
+    "tags",
+    "filter"
+  ],
+  "description": "Projects with a tag filter, optionally grouped by funding source.",
+  "author": "Andrew Chio"
+}

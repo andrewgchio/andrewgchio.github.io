@@ -1,0 +1,59 @@
+{{/* Hugo Blox: "In the News" — press coverage, in the same two-column rhythm
+     as my-collection. Reads content/news/* (one page per article). */}}
+
+{{ $page := .wcPage }}
+{{ $block := .wcBlock }}
+{{ $content := $block.content }}
+{{ if not (reflect.IsMap $content) }}{{ $content = dict }}{{ end }}
+{{ $design := $block.design }}
+{{ if not (reflect.IsMap $design) }}{{ $design = dict }}{{ end }}
+{{ $filters := index $content "filters" }}
+{{ if not (reflect.IsMap $filters) }}{{ $filters = dict }}{{ end }}
+
+{{ $folders := slice }}
+{{ $folders_raw := index $filters "folders" }}
+{{ if reflect.IsSlice $folders_raw }}
+  {{ range $folders_raw }}
+    {{ $f := strings.TrimSpace (printf "%v" .) }}
+    {{ if $f }}{{ $folders = $folders | append $f }}{{ end }}
+  {{ end }}
+{{ else if eq (printf "%T" $folders_raw) "string" }}
+  {{ with strings.TrimSpace $folders_raw }}{{ $folders = slice . }}{{ end }}
+{{ end }}
+{{ if not $folders }}{{ $folders = slice "news" }}{{ end }}
+
+{{ $query := where site.RegularPages "Section" "in" $folders }}
+{{ $query = where $query "Params.private" "!=" true }}
+{{ $query = $query.ByDate.Reverse }}
+
+{{ $count := partial "functions/coerce_int" (dict "value" (index $content "count") "default" 5 "min" 0) }}
+{{ $total := len $query }}
+{{ if and (gt $count 0) (gt $total $count) }}{{ $query = first $count $query }}{{ end }}
+
+{{ $title := "" }}
+{{ with index $content "title" }}{{ $title = printf "%v" . | emojify | $page.RenderString }}{{ end }}
+{{ $text := "" }}
+{{ with index $content "text" }}{{ $text = printf "%v" . | emojify | $page.RenderString }}{{ end }}
+
+{{ $date_format := "" }}
+{{ with index $design "date_format" }}{{ $date_format = printf "%v" . }}{{ end }}
+
+{{/* Archive link, shown when there are more items than the section lists. */}}
+{{ $archive := index $content "archive" }}
+{{ if not (reflect.IsMap $archive) }}{{ $archive = dict }}{{ end }}
+{{ $archive_url := "" }}
+{{ if partial "functions/coerce_bool" (dict "value" (index $archive "enable") "default" false) }}
+  {{ with site.GetPage "Section" (index $folders 0) }}{{ $archive_url = .RelPermalink }}{{ end }}
+{{ end }}
+{{ $archive_text := "See all news" }}
+{{ with index $archive "text" }}{{ $archive_text = printf "%v" . }}{{ end }}
+
+{{ $body := partial "my/news-items.html" (dict "pages" $query "date_format" $date_format) }}
+
+{{ partial "my/section-2col.html" (dict
+    "title" $title
+    "text" $text
+    "body" $body
+    "archive_url" $archive_url
+    "archive_text" $archive_text
+    "class" "my-news") }}

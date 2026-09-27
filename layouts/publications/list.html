@@ -1,0 +1,148 @@
+{{/*
+  Publications list with a client-side filter bar (text / type / project / year).
+
+  Overrides the blox module's generic layouts/list.html for this section only.
+
+  The Type control is intentionally absent; each item still carries data-type,
+  so re-adding the dropdown later needs no change to content.
+
+  Two deliberate differences from the module template:
+    1. No pagination. Filtering has to see every publication, not just the
+       current page of 10, so the whole section is rendered at once.
+    2. Each item is wrapped in .pub-filter-item carrying the facets as data-*
+       attributes, which is what assets/js/publication-filter.js reads.
+
+  The facet lists below are derived from the pages themselves, so the dropdowns
+  can never drift out of sync with the content.
+*/}}
+{{ define "main" }}
+
+{{ $view := .Params.view | default "citation" }}
+{{ $block := . }}
+{{ $pages := .Pages.ByDate.Reverse }}
+
+{{ $config := dict
+  "columns" (.Params.columns | default 1)
+  "len" (len $pages)
+  "fill_image" (.Params.fill_image | default true)
+  "show_date" (.Params.show_date | default true)
+  "show_read_time" (.Params.show_read_time | default true)
+  "show_read_more" (.Params.show_read_more | default true)
+}}
+
+{{/* Collect facets. The Project dropdown lists the funding projects named in
+     each publication's own `funding:` front matter (e.g. "NSF SWADE"),
+     independent of content/projects/; see partials/my/funding-groups.html. */}}
+{{ $projects := slice }}
+{{ $projectLabels := dict }}
+{{ $years := slice }}
+{{ range $pages }}
+  {{ range (partial "my/funding-groups.html" .) }}
+    {{ if not (in $projects .key) }}
+      {{ $projects = $projects | append .key }}
+      {{ $projectLabels = merge $projectLabels (dict .key .label) }}
+    {{ end }}
+  {{ end }}
+  {{ $y := .Date.Format "2006" }}
+  {{ if not (in $years $y) }}{{ $years = $years | append $y }}{{ end }}
+{{ end }}
+{{ $years = sort $years "value" "desc" }}
+{{ $projects = sort $projects }}
+
+{{/* Enable Alpine.js if any item needs author-note tooltips */}}
+{{ range $pages }}
+  {{ if isset .Params "author_notes" }}{{ $.Store.Set "has_alpine" true }}{{ break }}{{ end }}
+{{ end }}
+
+<div class="max-w-prose mx-auto flex justify-center">
+  <article class="prose prose-slate lg:prose-xl dark:prose-invert">
+    <h1 class="lg:text-6xl">{{ .Title }}</h1>
+    {{ .Content }}
+  </article>
+</div>
+
+<div class="flex flex-col items-center">
+
+  {{/* ---------------------------------------------------------------- */}}
+  {{/* Filter bar. `hidden` is removed by the script, so browsers with   */}}
+  {{/* JS disabled get the full list instead of dead controls.          */}}
+  {{/* ---------------------------------------------------------------- */}}
+  <div class="container max-w-3xl w-full mt-12 sm:mt-16">
+    <form class="pub-filter" data-pub-filter hidden role="search" aria-label="Filter publications">
+      <div class="pub-filter__row">
+        <label class="pub-filter__field pub-filter__field--grow">
+          <span class="pub-filter__label">Search</span>
+          <input type="search" data-pub-filter-text placeholder="Title, author, venue, or keyword&hellip;" autocomplete="off" />
+        </label>
+
+        {{ with $projects }}
+        <label class="pub-filter__field">
+          <span class="pub-filter__label">Project</span>
+          <select data-pub-filter-project>
+            <option value="">All projects</option>
+            {{ range . }}
+            <option value="{{ . }}">{{ index $projectLabels . }}</option>
+            {{ end }}
+          </select>
+        </label>
+        {{ end }}
+
+        <label class="pub-filter__field">
+          <span class="pub-filter__label">Year</span>
+          <select data-pub-filter-year>
+            <option value="">All years</option>
+            {{ range $years }}
+            <option value="{{ . }}">{{ . }}</option>
+            {{ end }}
+          </select>
+        </label>
+      </div>
+
+      <div class="pub-filter__status">
+        <span data-pub-filter-count role="status" aria-live="polite"></span>
+        <button type="button" class="pub-filter__clear" data-pub-filter-clear hidden>Clear filters</button>
+      </div>
+    </form>
+  </div>
+
+  {{ partial "functions/render_view" (dict "fragment" "start" "page" $block "item" . "view" $view "config" $config) }}
+
+  {{ range $index, $item := $pages }}
+    {{/* Resolved author display names, so searching "Chio" matches the rendered text rather than the `me` slug. */}}
+    {{ $authors := slice }}
+    {{ range ($item.Params.authors | default slice) }}
+      {{ $profile := partial "functions/get_author_profile" . }}
+      {{ $authors = $authors | append ($profile.title | default .) }}
+    {{ end }}
+    {{ $pub := partial "functions/resolve_publication.html" $item }}
+    {{ $haystack := delimit (slice
+        $item.Title
+        (delimit $authors " ")
+        ($pub.name | default "")
+        ($pub.short_name | default "")
+        (delimit ($item.Params.tags | default slice) " ")
+      ) " " }}
+
+    <div class="pub-filter-item"
+         data-year="{{ $item.Date.Format "2006" }}"
+         data-type="{{ with $item.Params.publication_types }}{{ index . 0 }}{{ end }}"
+         data-projects="{{ delimit (apply (partial "my/funding-groups.html" $item) "index" "." "key") " " }}"
+         data-search="{{ lower $haystack }}">
+      {{ partial "functions/render_view" (dict "page" $item "item" $item "view" $view "index" $index "config" $config) }}
+    </div>
+  {{ end }}
+
+  {{ partial "functions/render_view" (dict "fragment" "end" "page" $block "item" . "view" $view) }}
+
+  <div class="container max-w-3xl w-full">
+    <p class="pub-filter-empty" data-pub-filter-empty hidden>
+      No publications match these filters.
+    </p>
+  </div>
+
+</div>
+
+{{ $filterJS := resources.Get "js/publication-filter.js" | js.Build (dict "minify" true) | fingerprint "sha256" }}
+<script src="{{ $filterJS.RelPermalink }}" integrity="{{ $filterJS.Data.Integrity }}" defer></script>
+
+{{ end }}
